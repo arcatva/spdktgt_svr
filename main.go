@@ -52,7 +52,7 @@ func main() {
 	// start nvmf_tgt
 	cmd, err := startNvmfTgt(&config)
 	if err != nil {
-		log.Fatalln("failed to start nvmf_tgt: ", err)
+		log.Fatalln("startNvmfTgt:", err)
 	}
 	log.Println("nvmf_tgt started at: ", cmd.ProcessState.Pid())
 	log.Println("spdk target server started")
@@ -164,7 +164,7 @@ func configureNvmfTgt(config *Config) error {
 	//sends a JSON-RPC 2.0 request with "bdev_get_bdevs" method and provided params
 	resp, err := rpcClient.Call("nvmf_create_transport", getTcpParams())
 	if err != nil {
-		return fmt.Errorf("configureNvmfTgt: error on JSON-RPC call, method: %s err: %s", "bdev_get_bdevs", err.Error())
+		return fmt.Errorf("configureNvmfTgt: error on JSON-RPC call, method: %s err: %s", "nvmf_create_transport", err.Error())
 	}
 	result, err := json.Marshal(resp.Result)
 	if err != nil {
