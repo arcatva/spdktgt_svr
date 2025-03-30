@@ -52,9 +52,9 @@ func main() {
 	// start nvmf_tgt
 	cmd, err := startNvmfTgt(&config)
 	if err != nil {
-		log.Fatalln("failed to start nvmf_tgt: %v", err)
+		log.Fatalln("failed to start nvmf_tgt: ", err)
 	}
-	log.Println("nvmf_tgt started at: %v", cmd.ProcessState.Pid())
+	log.Println("nvmf_tgt started at: ", cmd.ProcessState.Pid())
 	log.Println("spdk target server started")
 
 	// watch if nvmf_tgt process exits
@@ -68,19 +68,19 @@ func main() {
 	case <-sig:
 		log.Println("signal received, exiting nvmf_tgt")
 		if err := cmd.Process.Signal(syscall.SIGTERM); err != nil {
-			log.Println("failed to send signal to nvmf_tgt: %v", err)
+			log.Println("failed to send signal to nvmf_tgt: ", err)
 		}
 		// timeout for killing nvmf_tgt process
 		forceKillTimer := time.AfterFunc(5*time.Second, func() {
 			log.Println("nvmf_tgt not responding, force exiting")
 			if err := cmd.Process.Kill(); err != nil {
-				log.Println("Failed to force exit nvmf_tgt: %v", err)
+				log.Println("Failed to force exit nvmf_tgt: ", err)
 			}
 		})
 		defer forceKillTimer.Stop()
 	case err := <-done: // nvmf_tgt exit by itself
 		if err != nil {
-			log.Println("nvmf_tgt panic: %v", err)
+			log.Println("nvmf_tgt panic: ", err)
 			os.Exit(1)
 		} else {
 			log.Println("nvmf_tgt gracefully exited")
