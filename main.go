@@ -158,20 +158,21 @@ func configureNvmfTgt(config *Config) error {
 	//create client
 	rpcClient, err := client.CreateClientWithJsonCodec(client.Unix, config.RpcSocket)
 	if err != nil {
-		return fmt.Errorf("configure nvmf_tgt failed: %s", err.Error())
+		return fmt.Errorf("configureNvmfTgt: %s", err.Error())
 	}
 	defer rpcClient.Close()
 	//sends a JSON-RPC 2.0 request with "bdev_get_bdevs" method and provided params
 	resp, err := rpcClient.Call("nvmf_create_transport", getTcpParams())
 	if err != nil {
-		return fmt.Errorf("error on JSON-RPC call, method: %s err: %s", "bdev_get_bdevs", err.Error())
+		return fmt.Errorf("configureNvmfTgt: error on JSON-RPC call, method: %s err: %s", "bdev_get_bdevs", err.Error())
 	}
 	result, err := json.Marshal(resp.Result)
 	if err != nil {
-		return fmt.Errorf("error when creating json string representation: %w", err)
+		return fmt.Errorf("configureNvmfTgt: %w", err)
 	}
 	log.Printf("%s\n", string(result))
 	log.Println("nvmf_tgt configured")
+	return nil
 }
 
 func getTcpParams() map[string]any {
