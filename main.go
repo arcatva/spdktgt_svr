@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/arcatva/spdktgt_svr/logger"
 	"github.com/spdk/spdk/go/rpc/client"
 )
 
@@ -38,24 +39,22 @@ func loadConfig() Config {
 }
 
 func main() {
-
+	logger.InitLogger()
 	// handle system signal
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 
 	// load configurations
 	config := loadConfig()
-
-	log.SetOutput(os.Stdout)
-	log.Println("spdk target server starting...")
+	log.Println("main: spdk target server starting")
 
 	// start nvmf_tgt
 	cmd, err := startNvmfTgt(&config)
 	if err != nil {
-		log.Fatalln("startNvmfTgt:", err)
+		log.Fatalln("main: startNvmfTgt:", err)
 	}
-	log.Println("nvmf_tgt started at: ", cmd.ProcessState.Pid())
-	log.Println("spdk target server started")
+
+	log.Println("main: spdk target server started")
 
 	// watch if nvmf_tgt process exits
 	done := make(chan error, 1)
