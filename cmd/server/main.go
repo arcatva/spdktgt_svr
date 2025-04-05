@@ -28,12 +28,13 @@ func main() {
 	}
 
 	if err := tgt.Start(); err != nil {
-		log.Fatalf("failed to start target: %v", err)
+		logrus.Fatalf("failed to start target: %v", err)
 	}
+	
 	<-sig
 	log.Println("shutting down target...")
 	if err := tgt.Stop(); err != nil {
-		log.Printf("error shutting down target: %v", err)
+		logrus.Fatalf("error shutting down target: %v", err)
 	}
 	logrus.Info("SPDK Target Server stopped...")
 }

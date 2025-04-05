@@ -8,6 +8,7 @@ import (
 )
 
 func Init() {
+	logrus.SetReportCaller(true)
 	logrus.SetFormatter(&spdkFormatter{})
 	logrus.SetOutput(os.Stdout)
 }
