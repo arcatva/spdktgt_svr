@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (s *Target) startProcess() (*exec.Cmd, error) {
+func (s *target) startProcess() (*exec.Cmd, error) {
 	logrus.Printf("starting nvmf_tgt with binary: %s\n", s.config.SpdkBin)
 
 	cmd := exec.Command(s.config.SpdkBin, "-r", s.config.RpcSocket)

@@ -9,22 +9,29 @@ import (
 
 	"github.com/arcatva/spdktgt_svr/internal/config"
 	"github.com/sirupsen/logrus"
+	"github.com/spdk/spdk/go/rpc/client"
 )
 
-type Target struct {
-	config *config.Config
-	cmd    *exec.Cmd
-	done   chan error
+type target struct {
+	RpcClient *client.Client
+	config    *config.Config
+	cmd       *exec.Cmd
+	done      chan error
 }
 
-func New(config *config.Config) (*Target, error) {
-	return &Target{
+var Target *target
+
+func New(config *config.Config) error {
+
+	Target = &target{
 		config: config,
 		done:   make(chan error, 1),
-	}, nil
+	}
+
+	return nil
 }
 
-func (s *Target) Start() error {
+func (s *target) Start() error {
 	logrus.Info("nvmf_tgt process starting")
 	var err error
 	// start nvmf_tgt process
@@ -52,9 +59,11 @@ func (s *Target) Start() error {
 	return nil
 }
 
-func (s *Target) Stop() error {
+func (s *target) Stop() error {
 
 	logrus.Info("stopping nvmf_tgt")
+
+	s.RpcClient.Close()
 
 	if s.cmd == nil || s.cmd.Process == nil {
 		return fmt.Errorf("no nvmf_tgt process found")
