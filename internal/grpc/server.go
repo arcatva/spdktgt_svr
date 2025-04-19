@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/arcatva/spdktgt_svr/grpc/protos"
 	"github.com/arcatva/spdktgt_svr/internal/target"
+	"github.com/arcatva/spdktgt_svr/pkg/api/protos"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"

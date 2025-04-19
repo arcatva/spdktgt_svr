@@ -7,8 +7,8 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/arcatva/spdktgt_svr/grpc"
 	"github.com/arcatva/spdktgt_svr/internal/config"
+	"github.com/arcatva/spdktgt_svr/internal/grpc"
 	"github.com/arcatva/spdktgt_svr/internal/logger"
 	"github.com/arcatva/spdktgt_svr/internal/target"
 	"github.com/sirupsen/logrus"
