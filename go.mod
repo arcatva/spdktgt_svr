@@ -3,6 +3,7 @@ module github.com/arcatva/spdktgt_svr
 go 1.24.1
 
 require (
+	github.com/golang/protobuf v1.5.4
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spdk/spdk/go/rpc v0.0.0-20250325084929-9f051b98510e
 	google.golang.org/grpc v1.71.1
