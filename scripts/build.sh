@@ -22,4 +22,7 @@ protoc \
 # 2. Build the main executable
 go build -o "$BIN_DIR/spdktgt-svr" "$CMD_PATH"
 
+# 3. Copy the generated binaries to the bin directory
+cp "$BIN_DIR/spdktgt-svr" "/bin/spdktgt-svr"
+
 echo "✅ gRPC code generated and spdktgt-svr built at $BIN_DIR/spdktgt-svr"

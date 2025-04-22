@@ -9,9 +9,8 @@ import (
 )
 
 func (s *target) startProcess() (*exec.Cmd, error) {
-	logrus.Printf("starting nvmf_tgt with binary: %s\n", s.config.SpdkBin)
-
-	cmd := exec.Command(s.config.SpdkBin, "-r", s.config.RpcSocket, "-c", s.config.ConfigFile)
+	logrus.Infof("Starting nvmf_tgt with args: %v", s.args)
+	cmd := exec.Command("/bin/nvmf_tgt", s.args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.SysProcAttr = &syscall.SysProcAttr{

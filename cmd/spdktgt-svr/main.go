@@ -7,7 +7,6 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/arcatva/spdktgt_svr/internal/config"
 	"github.com/arcatva/spdktgt_svr/internal/grpc"
 	"github.com/arcatva/spdktgt_svr/internal/logger"
 	"github.com/arcatva/spdktgt_svr/internal/target"
@@ -15,6 +14,7 @@ import (
 )
 
 func main() {
+	args := os.Args
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	var wg sync.WaitGroup
@@ -27,7 +27,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		target.New(config.Load()).Start(ctx)
+		target.New(args).Start(ctx)
 	}()
 
 	wg.Add(1)

@@ -22,7 +22,7 @@ func (s *target) waitForRpcReady() error {
 			return fmt.Errorf("nvmf_tgt rpc ready timeout")
 		default:
 			// try connect rpc
-			rpcClient, err := client.CreateClientWithJsonCodec(client.Unix, s.config.RpcSocket)
+			rpcClient, err := client.CreateClientWithJsonCodec(client.Unix, "/var/tmp/spdk.sock")
 			if err != nil {
 				time.Sleep(retryInterval)
 				continue

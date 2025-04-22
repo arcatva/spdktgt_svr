@@ -7,24 +7,23 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/arcatva/spdktgt_svr/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spdk/spdk/go/rpc/client"
 )
 
 type target struct {
 	RpcClient *client.Client
-	config    *config.Config
+	args      []string
 	cmd       *exec.Cmd
 	done      chan error
 }
 
 var t *target
 
-func New(config *config.Config) *target {
+func New(args []string) *target {
 	t = &target{
-		config: config,
-		done:   make(chan error, 1),
+		args: args,
+		done: make(chan error, 1),
 	}
 	return t
 }
