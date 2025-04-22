@@ -32,19 +32,14 @@ func Get() *target {
 	return t
 }
 
-func (t *target) Start(ctx context.Context) error {
+func (t *target) Start(ctx context.Context, cancel context.CancelFunc) error {
 	logrus.Info("nvmf_tgt process starting")
 
-	cmd, err := t.startProcess()
-	if err != nil {
+	if cmd, err := t.startProcess(); err != nil {
 		return err
+	} else {
+		t.cmd = cmd
 	}
-	t.cmd = cmd
-
-	go func() {
-		t.done <- t.cmd.Wait()
-		logrus.Info("nvmf_tgt process exited")
-	}()
 
 	if err := t.waitForRpcReady(); err != nil {
 		return err
