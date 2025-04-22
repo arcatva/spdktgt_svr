@@ -16,7 +16,7 @@ func (s *target) startProcess() (*exec.Cmd, error) {
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Pdeathsig: syscall.SIGTERM, // Send SIGTERM to the process when the parent dies
 	}
-	logrus.Infof("nvmf_tgt pid: %d", cmd.Process.Pid)
+	logrus.Infof("nvmf_tgt")
 	if err := cmd.Start(); err != nil {
 		logrus.Errorf("Failed to start nvmf_tgt: %v", err)
 		return nil, err
