@@ -46,6 +46,7 @@ func (t *target) Start(ctx context.Context) error {
 		logrus.Info("nvmf_tgt process exited")
 	}()
 
+	logrus.Info("waiting for nvmf_tgt rpc ready")
 	if err := t.waitForRpcReady(); err != nil {
 		return err
 	}
