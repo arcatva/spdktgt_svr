@@ -41,6 +41,8 @@ func StartGrpcServer(ctx context.Context) error {
 		serveErr <- grpcServer.Serve(lis)
 	}()
 
+	logrus.Info("gRPC server started on port 50051")
+
 	select {
 	case <-ctx.Done():
 		logrus.Info("received context cancel, shutting down gRPC server")
