@@ -27,7 +27,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		if target.New(args).Start(ctx) != nil {
+		if err := target.New(args).Start(ctx); err != nil {
 			logrus.Errorf("Failed to start nvmf_tgt: %v", err)
 		}
 	}()
