@@ -43,6 +43,7 @@ func (t *target) Start(ctx context.Context) error {
 
 	go func() {
 		t.done <- t.cmd.Wait()
+		logrus.Info("nvmf_tgt process exited")
 	}()
 
 	if err := t.waitForRpcReady(); err != nil {

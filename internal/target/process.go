@@ -14,7 +14,7 @@ func (s *target) startProcess() (*exec.Cmd, error) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Pdeathsig: syscall.SIGTERM,
+		Pdeathsig: syscall.SIGTERM, // Send SIGTERM to the process when the parent dies
 	}
 	if err := cmd.Start(); err != nil {
 		return nil, err
