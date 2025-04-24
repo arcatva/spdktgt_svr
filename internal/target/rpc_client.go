@@ -19,7 +19,7 @@ func (s *target) waitForRpcReady() error {
 	for {
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("nvmf_tgt rpc ready timeout")
+			return fmt.Errorf("nvmf-tgt rpc ready timeout")
 		default:
 			// try connect rpc
 			rpcClient, err := client.CreateClientWithJsonCodec(client.Unix, "/var/tmp/spdk.sock")
@@ -33,7 +33,7 @@ func (s *target) waitForRpcReady() error {
 			if err != nil {
 				time.Sleep(retryInterval)
 			}
-			logrus.Info("nvmf_tgt rpc ready")
+			logrus.Info("nvmf-tgt rpc ready")
 			s.RpcClient = rpcClient
 			return nil
 		}

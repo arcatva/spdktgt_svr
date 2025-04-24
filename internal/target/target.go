@@ -33,7 +33,7 @@ func Get() *target {
 }
 
 func (t *target) Start(ctx context.Context, cancel context.CancelFunc) error {
-	logrus.Info("nvmf_tgt process starting")
+	logrus.Info("nvmf-tgt process starting")
 
 	if cmd, err := t.startProcess(); err != nil {
 		return err
@@ -45,10 +45,10 @@ func (t *target) Start(ctx context.Context, cancel context.CancelFunc) error {
 		return err
 	}
 
-	logrus.Info("nvmf_tgt configured successfully")
+	logrus.Info("nvmf-tgt configured successfully")
 
 	<-ctx.Done()
-	logrus.Info("received context cancel, shutting down nvmf_tgt")
+	logrus.Info("received context cancel, shutting down nvmf-tgt")
 
 	return t.Stop()
 }
@@ -61,7 +61,7 @@ func (t *target) Stop() error {
 	}
 
 	if t.cmd == nil || t.cmd.Process == nil {
-		return fmt.Errorf("no nvmf_tgt process found")
+		return fmt.Errorf("no nvmf-tgt process found")
 	}
 
 	logrus.Info("sending SIGTERM")
@@ -74,12 +74,12 @@ func (t *target) Stop() error {
 	select {
 	case err := <-t.done:
 		if err != nil {
-			logrus.Errorf("nvmf_tgt exited with error: %v", err)
+			logrus.Errorf("nvmf-tgt exited with error: %v", err)
 		}
-		logrus.Info("nvmf_tgt was successfully terminated")
+		logrus.Info("nvmf-tgt was successfully terminated")
 		return nil
 	case <-ctx.Done():
-		logrus.Error("force killing nvmf_tgt process")
+		logrus.Error("force killing nvmf-tgt process")
 		return t.cmd.Process.Kill()
 	}
 }
