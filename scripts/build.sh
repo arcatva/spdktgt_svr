@@ -6,11 +6,8 @@ ROOT_DIR=$(cd "$(dirname "$0")/.." && pwd)
 
 # Paths
 PROTO_DIR="$ROOT_DIR/pkg/api/protos"
-BIN_DIR="$ROOT_DIR/bin"
+BIN_DIR="$ROOT_DIR/deb-build/usr/bin"
 CMD_PATH="$ROOT_DIR/cmd/spdktgt-svr"
-
-# Ensure output and bin directories exist
-mkdir -p "$PROTO_DIR" "$BIN_DIR"
 
 # 1. Generate gRPC code from .proto
 protoc \
@@ -19,10 +16,13 @@ protoc \
   --go-grpc_out=paths=source_relative:"$PROTO_DIR" \
   "$PROTO_DIR"/spdk.proto
 
+echo "✅ gRPC code generated successfully."
+
 # 2. Build the main executable
 go build -o "$BIN_DIR/spdktgt-svr" "$CMD_PATH"
 
-# 3. Copy the generated binaries to the bin directory
-cp "$BIN_DIR/spdktgt-svr" "/bin/spdktgt-svr"
+echo "✅ spdktgt-svr built successfully."
 
-echo "✅ gRPC code generated and spdktgt-svr built at $BIN_DIR/spdktgt-svr"
+# 3. Build the Debian package
+dpkg-deb --build "$ROOT_DIR/deb-build" "$ROOT_DIR/spdktgt-svr.deb"
+echo "✅ Debian package built successfully."

@@ -1,0 +1,10 @@
+[Unit]
+Description=spdktgt-svr
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/spdktgt-svr -c /etc/spdk/nvmf.json -m 0xf
+
+[Install]
+WantedBy=multi-user.target

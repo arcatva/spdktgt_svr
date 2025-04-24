@@ -1,0 +1,8 @@
+Package: spdktgt-svr
+Version: 0.1
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: a723356@gmail.com
+Description: SPDK Target Management Server
+  This package provides a management server for SPDK target applications. It allows users to manage and monitor SPDK targets
