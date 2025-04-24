@@ -1,4 +1,4 @@
 #!/bin/bash
 systemctl daemon-reload
-systemctl enable spdktgt-svr.slice
-systemctl start spdktgt-svr.slice
+systemctl enable spdktgt-svr.service
+systemctl start spdktgt-svr.service
