@@ -24,5 +24,6 @@ go build -o "$BIN_DIR/spdktgt-svr" "$CMD_PATH"
 echo "✅ spdktgt-svr built successfully."
 
 # 3. Build the Debian package
+chmod 775 "$ROOT_DIR/deb-build/DEBIAN/postinst"
 dpkg-deb --build "$ROOT_DIR/deb-build" "$ROOT_DIR/spdktgt-svr.deb"
 echo "✅ Debian package built successfully."
