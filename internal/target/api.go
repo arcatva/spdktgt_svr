@@ -7,8 +7,9 @@ import (
 type Api string
 
 const (
-	GetSpdkVersion Api = "spdk_get_version"
-	
+	SpdkGetVersion      Api = "spdk_get_version"
+	FramworkGetReactors     = "framework_get_reactors"
+	NvmfGetSubsystems       = "nvmf_get_subsystems"
 )
 
 func (t *target) CallTargetRpc(api Api, param any) (*client.Response, error) {

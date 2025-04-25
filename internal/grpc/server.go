@@ -5,28 +5,10 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/arcatva/spdktgt_svr/internal/target"
 	"github.com/arcatva/spdktgt_svr/pkg/api/protos"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
-
-// spdkServer implements the pb.SpdkServiceServer interface.
-type spdkServer struct {
-	protos.UnimplementedSpdkServer
-}
-
-func (s *spdkServer) GetSpdkVersion(context.Context, *emptypb.Empty) (*protos.SpdkVersion, error) {
-
-	resp, err := target.Get().CallTargetRpc(target.GetSpdkVersion, nil)
-
-	version := resp.Result.(map[string]interface{})["version"].(string)
-
-	return &protos.SpdkVersion{
-		Version: version,
-	}, err
-}
 
 func StartGrpcServer(ctx context.Context) error {
 	lis, err := net.Listen("tcp", ":50051")
