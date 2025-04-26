@@ -72,85 +72,179 @@ func (s *spdkServer) FrameworkGetReactors(context.Context, *emptypb.Empty) (*pro
 }
 
 func (s *spdkServer) NvmfGetSubsystems(ctx context.Context, _ *emptypb.Empty) (*protos.NvmfSubsystems, error) {
-	resp, err := target.Get().CallTargetRpc(target.NvmfGetSubsystems, nil)
-	if err != nil {
-		return nil, err
-	}
+    resp, err := target.Get().CallTargetRpc(target.NvmfGetSubsystems, nil)
+    if err != nil {
+        return nil, err
+    }
 
-	rawSubsystems := resp.Result.([]interface{})
+    rawSubsystems, ok := resp.Result.([]interface{})
+    if !ok {
+        return nil, fmt.Errorf("invalid subsystems data format")
+    }
 
-	subsystems := make([]*protos.NvmfSubsystem, len(rawSubsystems))
-	for i, item := range rawSubsystems {
-		mItem, ok := item.(map[string]interface{})
-		if !ok {
-			return nil, fmt.Errorf("invalid subsystem format")
-		}
+    subsystems := make([]*protos.NvmfSubsystem, len(rawSubsystems))
+    for i, item := range rawSubsystems {
+        mItem, ok := item.(map[string]interface{})
+        if !ok {
+            return nil, fmt.Errorf("invalid subsystem format")
+        }
 
-		// Process ListenAddresses field
-		rawListenAddresses, ok := mItem["listen_addresses"].([]interface{})
-		if !ok {
-			return nil, fmt.Errorf("invalid listen_addresses data")
-		}
-		listenAddresses := make([]*protos.NvmfListenAddress, len(rawListenAddresses))
-		for j, addr := range rawListenAddresses {
-			mAddr := addr.(map[string]interface{})
-			listenAddresses[j] = &protos.NvmfListenAddress{
-				Trtype:  mAddr["trtype"].(string),
-				Adrfam:  mAddr["adrfam"].(string),
-				Traddr:  mAddr["traddr"].(string),
-				Trsvcid: mAddr["trsvcid"].(string),
-			}
-		}
+        // Process ListenAddresses field
+        rawListenAddresses, ok := mItem["listen_addresses"].([]interface{})
+        if !ok {
+            return nil, fmt.Errorf("invalid listen_addresses data")
+        }
+        listenAddresses := make([]*protos.NvmfListenAddress, len(rawListenAddresses))
+        for j, addr := range rawListenAddresses {
+            mAddr, ok := addr.(map[string]interface{})
+            if !ok {
+                return nil, fmt.Errorf("invalid listen address format")
+            }
+            // Using safe assertion for fields in listen address.
+            trtype, ok := mAddr["trtype"].(string)
+            if !ok {
+                return nil, fmt.Errorf("invalid or missing 'trtype' field")
+            }
+            adrfam, ok := mAddr["adrfam"].(string)
+            if !ok {
+                return nil, fmt.Errorf("invalid or missing 'adrfam' field")
+            }
+            traddr, ok := mAddr["traddr"].(string)
+            if !ok {
+                return nil, fmt.Errorf("invalid or missing 'traddr' field")
+            }
+            trsvcid, ok := mAddr["trsvcid"].(string)
+            if !ok {
+                return nil, fmt.Errorf("invalid or missing 'trsvcid' field")
+            }
+            listenAddresses[j] = &protos.NvmfListenAddress{
+                Trtype:  trtype,
+                Adrfam:  adrfam,
+                Traddr:  traddr,
+                Trsvcid: trsvcid,
+            }
+        }
 
-		// Process Namespaces field; note that namespaces may not be present for Discovery subsystem.
-		var namespaces []*protos.NvmfNamespace
-		if rawNS, exists := mItem["namespaces"]; exists {
-			rawNamespaces, ok := rawNS.([]interface{})
-			if !ok {
-				return nil, fmt.Errorf("invalid namespaces data")
-			}
-			namespaces = make([]*protos.NvmfNamespace, len(rawNamespaces))
-			for j, ns := range rawNamespaces {
-				mNS := ns.(map[string]interface{})
-				namespaces[j] = &protos.NvmfNamespace{
-					Nsid:     uint32(mNS["nsid"].(float64)),
-					BdevName: mNS["bdev_name"].(string),
-					Name:     mNS["name"].(string),
-					Nguid:    mNS["nguid"].(string),
-					Uuid:     mNS["uuid"].(string),
-				}
-			}
-		}
+        // Common required fields.
+        nqn, ok := mItem["nqn"].(string)
+        if !ok {
+            return nil, fmt.Errorf("invalid or missing 'nqn' field")
+        }
+        subtype, ok := mItem["subtype"].(string)
+        if !ok {
+            return nil, fmt.Errorf("invalid or missing 'subtype' field")
+        }
 
-		// Process Hosts field.
-		var hosts []string
-		if rawHosts, exists := mItem["hosts"]; exists {
-			rawHostsArray, ok := rawHosts.([]interface{})
-			if !ok {
-				return nil, fmt.Errorf("invalid hosts data")
-			}
-			hosts = make([]string, len(rawHostsArray))
-			for j, h := range rawHostsArray {
-				hosts[j] = h.(string)
-			}
-		}
+        // For non-discovery subsystems, these fields must be present.
+        var serialNumber, modelNumber string
+        var maxNamespaces float64
+        var minCntlid float64
+        var maxCntlid float64
 
-		subsystems[i] = &protos.NvmfSubsystem{
-			Nqn:             mItem["nqn"].(string),
-			Subtype:         mItem["subtype"].(string),
-			ListenAddresses: listenAddresses,
-			AllowAnyHost:    mItem["allow_any_host"].(bool),
-			Hosts:           hosts,
-			SerialNumber:    mItem["serial_number"].(string),
-			ModelNumber:     mItem["model_number"].(string),
-			MaxNamespaces:   uint32(mItem["max_namespaces"].(float64)),
-			MinCntlid:       uint32(mItem["min_cntlid"].(float64)),
-			MaxCntlid:       uint32(mItem["max_cntlid"].(float64)),
-			Namespaces:      namespaces,
-		}
-	}
+        if subtype != "Discovery" {
+            sn, ok := mItem["serial_number"].(string)
+            if !ok {
+                return nil, fmt.Errorf("invalid or missing 'serial_number' field")
+            }
+            mn, ok := mItem["model_number"].(string)
+            if !ok {
+                return nil, fmt.Errorf("invalid or missing 'model_number' field")
+            }
+            mxNS, ok := mItem["max_namespaces"].(float64)
+            if !ok {
+                return nil, fmt.Errorf("invalid or missing 'max_namespaces' field")
+            }
+            minCt, ok := mItem["min_cntlid"].(float64)
+            if !ok {
+                return nil, fmt.Errorf("invalid or missing 'min_cntlid' field")
+            }
+            maxCt, ok := mItem["max_cntlid"].(float64)
+            if !ok {
+                return nil, fmt.Errorf("invalid or missing 'max_cntlid' field")
+            }
+            serialNumber = sn
+            modelNumber = mn
+            maxNamespaces = mxNS
+            minCntlid = minCt
+            maxCntlid = maxCt
+        }
 
-	return &protos.NvmfSubsystems{
-		Subsystems: subsystems,
-	}, nil
+        // Process Namespaces field; may not be present
+        var namespaces []*protos.NvmfNamespace
+        if rawNS, exists := mItem["namespaces"]; exists {
+            rawNamespaces, ok := rawNS.([]interface{})
+            if !ok {
+                return nil, fmt.Errorf("invalid namespaces data")
+            }
+            namespaces = make([]*protos.NvmfNamespace, len(rawNamespaces))
+            for j, ns := range rawNamespaces {
+                mNS, ok := ns.(map[string]interface{})
+                if !ok {
+                    return nil, fmt.Errorf("invalid namespace format")
+                }
+                nsid, ok := mNS["nsid"].(float64)
+                if !ok {
+                    return nil, fmt.Errorf("invalid or missing 'nsid' field")
+                }
+                bdevName, ok := mNS["bdev_name"].(string)
+                if !ok {
+                    return nil, fmt.Errorf("invalid or missing 'bdev_name' field")
+                }
+                name, ok := mNS["name"].(string)
+                if !ok {
+                    return nil, fmt.Errorf("invalid or missing 'name' field")
+                }
+                nguid, ok := mNS["nguid"].(string)
+                if !ok {
+                    return nil, fmt.Errorf("invalid or missing 'nguid' field")
+                }
+                uuid, ok := mNS["uuid"].(string)
+                if !ok {
+                    return nil, fmt.Errorf("invalid or missing 'uuid' field")
+                }
+                namespaces[j] = &protos.NvmfNamespace{
+                    Nsid:     uint32(nsid),
+                    BdevName: bdevName,
+                    Name:     name,
+                    Nguid:    nguid,
+                    Uuid:     uuid,
+                }
+            }
+        }
+
+        // Process Hosts field.
+        var hosts []string
+        if rawHosts, exists := mItem["hosts"]; exists {
+            rawHostsArray, ok := rawHosts.([]interface{})
+            if !ok {
+                return nil, fmt.Errorf("invalid hosts data")
+            }
+            hosts = make([]string, len(rawHostsArray))
+            for j, h := range rawHostsArray {
+                host, ok := h.(string)
+                if !ok {
+                    return nil, fmt.Errorf("invalid host format")
+                }
+                hosts[j] = host
+            }
+        }
+
+        subsystems[i] = &protos.NvmfSubsystem{
+            Nqn:             nqn,
+            Subtype:         subtype,
+            ListenAddresses: listenAddresses,
+            AllowAnyHost:    mItem["allow_any_host"].(bool), // Adjust check as needed.
+            Hosts:           hosts,
+            SerialNumber:    serialNumber,
+            ModelNumber:     modelNumber,
+            MaxNamespaces:   uint32(maxNamespaces),
+            MinCntlid:       uint32(minCntlid),
+            MaxCntlid:       uint32(maxCntlid),
+            Namespaces:      namespaces,
+        }
+    }
+
+    return &protos.NvmfSubsystems{
+        Subsystems: subsystems,
+    }, nil
 }
