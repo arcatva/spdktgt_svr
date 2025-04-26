@@ -11,7 +11,7 @@ import (
 )
 
 func StartGrpcServer(ctx context.Context) error {
-	lis, err := net.Listen("tcp", ":50051")
+	lis, err := net.Listen("tcp", "0.0.0.0:50051")
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
