@@ -35,11 +35,11 @@ func (s *spdkServer) FrameworkGetReactors(context.Context, *emptypb.Empty) (*pro
 	pid := uint32(m["pid"].(float64))
 
 	rawRs := m["reactors"].([]interface{})
-	reactors := make([]*protos.Reactor, len(rawRs))
+	reactors := make([]*protos.FrameworkReactor, len(rawRs))
 
 	for i, r := range rawRs {
 		rm := r.(map[string]interface{})
-		reactor := &protos.Reactor{
+		reactor := &protos.FrameworkReactor{
 			Lcore:       uint32(rm["lcore"].(float64)),
 			Tid:         uint32(rm["tid"].(float64)),
 			Busy:        uint64(rm["busy"].(float64)),
@@ -50,10 +50,10 @@ func (s *spdkServer) FrameworkGetReactors(context.Context, *emptypb.Empty) (*pro
 			Usr:         uint64(rm["usr"].(float64)),
 		}
 		rawLT := rm["lw_threads"].([]interface{})
-		lwts := make([]*protos.LwThread, len(rawLT))
+		lwts := make([]*protos.FrameworkReactorLwThread, len(rawLT))
 		for j, lt := range rawLT {
 			ltm := lt.(map[string]interface{})
-			lwts[j] = &protos.LwThread{
+			lwts[j] = &protos.FrameworkReactorLwThread{
 				Name:    ltm["name"].(string),
 				Id:      uint32(ltm["id"].(float64)),
 				Cpumask: ltm["cpumask"].(string),
@@ -91,10 +91,10 @@ func (s *spdkServer) NvmfGetSubsystems(ctx context.Context, _ *emptypb.Empty) (*
 		if !ok {
 			return nil, fmt.Errorf("invalid listen_addresses data")
 		}
-		listenAddresses := make([]*protos.ListenAddress, len(rawListenAddresses))
+		listenAddresses := make([]*protos.NvmfListenAddress, len(rawListenAddresses))
 		for j, addr := range rawListenAddresses {
 			mAddr := addr.(map[string]interface{})
-			listenAddresses[j] = &protos.ListenAddress{
+			listenAddresses[j] = &protos.NvmfListenAddress{
 				Trtype:  mAddr["trtype"].(string),
 				Adrfam:  mAddr["adrfam"].(string),
 				Traddr:  mAddr["traddr"].(string),
@@ -103,16 +103,16 @@ func (s *spdkServer) NvmfGetSubsystems(ctx context.Context, _ *emptypb.Empty) (*
 		}
 
 		// Process Namespaces field; note that namespaces may not be present for Discovery subsystem.
-		var namespaces []*protos.Namespace
+		var namespaces []*protos.NvmfNamespace
 		if rawNS, exists := mItem["namespaces"]; exists {
 			rawNamespaces, ok := rawNS.([]interface{})
 			if !ok {
 				return nil, fmt.Errorf("invalid namespaces data")
 			}
-			namespaces = make([]*protos.Namespace, len(rawNamespaces))
+			namespaces = make([]*protos.NvmfNamespace, len(rawNamespaces))
 			for j, ns := range rawNamespaces {
 				mNS := ns.(map[string]interface{})
-				namespaces[j] = &protos.Namespace{
+				namespaces[j] = &protos.NvmfNamespace{
 					Nsid:     uint32(mNS["nsid"].(float64)),
 					BdevName: mNS["bdev_name"].(string),
 					Name:     mNS["name"].(string),
