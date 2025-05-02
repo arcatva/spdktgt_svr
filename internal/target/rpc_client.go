@@ -34,7 +34,7 @@ func (s *target) waitForRpcReady() error {
 				time.Sleep(retryInterval)
 			}
 			logrus.Info("nvmf-tgt rpc ready")
-			s.RpcClient = rpcClient
+			s.rpcClient = rpcClient
 			return nil
 		}
 	}

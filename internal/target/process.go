@@ -21,7 +21,7 @@ func (s *target) startProcess() (*exec.Cmd, error) {
 	logrus.Infof("nvmf-tgt started with pid: %d", cmd.Process.Pid)
 
 	go func() {
-		t.done <- t.cmd.Wait()
+		targetInstance.done <- targetInstance.cmd.Wait()
 		logrus.Info("nvmf-tgt process exited")
 	}()
 

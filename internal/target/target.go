@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"sync"
 	"syscall"
 	"time"
 
@@ -11,25 +12,40 @@ import (
 	"github.com/spdk/spdk/go/rpc/client"
 )
 
+type Target interface {
+	Start(ctx context.Context, cancel context.CancelFunc) error
+	Stop() error
+	CallTargetRpcGet(getApi GetApi, param any) (*client.Response, error)
+	CallTargetRpcSet(setApi SetApi, param any) (*client.Response, error)
+}
+
 type target struct {
-	RpcClient *client.Client
+	rpcClient *client.Client
 	args      []string
 	cmd       *exec.Cmd
 	done      chan error
+	rwMutex   sync.RWMutex
 }
 
-var t *target
+var targetInstance *target
 
-func New(args []string) *target {
-	t = &target{
+func CreateTargetInstance(args []string) Target {
+	if targetInstance != nil {
+		logrus.Warn("target already initialized")
+		return targetInstance
+	}
+	targetInstance = &target{
 		args: args,
 		done: make(chan error, 1),
 	}
-	return t
+	return targetInstance
 }
 
-func Get() *target {
-	return t
+func GetTargetInstance() Target {
+	if targetInstance == nil {
+		logrus.Fatal("target not initialized")
+	}
+	return targetInstance
 }
 
 func (t *target) Start(ctx context.Context, cancel context.CancelFunc) error {
@@ -55,8 +71,8 @@ func (t *target) Start(ctx context.Context, cancel context.CancelFunc) error {
 
 func (t *target) Stop() error {
 
-	if t.RpcClient != nil {
-		t.RpcClient.Close()
+	if t.rpcClient != nil {
+		t.rpcClient.Close()
 		logrus.Info("json_rpc client stopped")
 	}
 
